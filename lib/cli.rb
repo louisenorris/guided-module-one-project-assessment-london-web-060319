@@ -27,10 +27,8 @@ end
         update #add this method
       elsif user_input == "refund"
         refund #add this method
-      elsif user_input == "exit"
+      else user_input == "exit"
   		  anything_else
-  		else
-  			 "Invalid entry, please try again."
   		end
 	  end
 
@@ -51,6 +49,15 @@ end
     menu
   end
 
+  # def details_of_a_user
+  #   User.find_by(:id)
+  #   binding.pry
+  # end
+  #
+  # def all_purchases_for_a_user
+  #   self.Purchases{|purchase| purchase.user_id == self}
+  # end
+
   def search
     user_input = prompt.select("How would you like to search for a plant?", %w(search_climate search_cost return_to_menu))
     if user_input == "search_climate"
@@ -63,24 +70,27 @@ end
   end
 
   def search_climate
-    user_input = prompt.select("Please select one of the following climate options which best represents a quality of your home environment:", %w(humidity direct_sunlight indirect_light shade hot_dry_climate return_to_menu))
-    if user_input != "return_to_menu"
-      plants_match = Plant.all.select{|plant| plant.preferences == self}
-    else user_input == "return_to_menu"
+    user_input = prompt.select("Please select one of the following climate options which best represents a quality of your home environment:", ["humidity", "direct sunlight", "indirect light", "shade", "hot dry climate", "return to menu"])
+    if user_input != "return to menu"
+      plants_match = Plant.all.select{|plant| plant.preferences == user_input.to_s}
+      binding.pry
+    else user_input == "return to menu"
      menu
     end
     plants_match
   end
     #binding.pry
 
-  def plant_price
-    Plant.all.map{|plant| plant.price }
-  end
+  # def plant_price
+  #   Plant.all.select{|plant| plant.price}
+  #
+  # end
 
   def search_cost
     puts "We can provide plants to suit most budgets! Please enter your maximum budget to see all plants within your price range:"
     user_input = gets.chomp.to_i
-    plant_price.select{|price| price >= user_input}
+    plants_in_budget = Plant.all.select{|plant| plant.price <= user_input}
+  #  binding.pry
     #then either purchase plant or return to options menu
   end
 
@@ -126,7 +136,7 @@ end
     #return a plant
     #find all plants purchased by a user
     #pick a plant to delete
-    return_purchase = Purchase.find_by(title: "That One Where the Guy Kicks Another Guy Once")
+    return_purchase = Purchase.find_by(user_id: " " )
     return_purchase.delete
 
     menu
@@ -146,3 +156,5 @@ def exit_app
 end
 
 end
+
+#%w(humidity direct_sunlight indirect_light shade hot_dry_climate return_to_menu))
