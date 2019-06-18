@@ -1,92 +1,148 @@
 class CommandLineInterface
 
+attr_reader :prompt, :font, :pastel
+
+def initialize
+  @prompt = TTY::Prompt.new
+  @font = TTY::Font.new(:doom)
+  @pastel = Pastel.new
+end
+
+  def title
+    puts pastel.green(font.write("Urban Jungle", letter_spacing: 2))
+  end
+
   def greet
     puts 'Welcome to the Urban Jungle, the best source for indoor plants outside of your home!'
   end
 
-#instead of options if/else just select from a dropdown menu - tty prompt select!!
   def menu
-    puts "How can we help?" #add a v short time delay
-    puts "Please enter one of the following options:
-- register : sign up as a new Customer
-- search : search for a plant to purchase
-- update : update your Customer details
-- refund : return a plant
-- exit : exit this program" #USE TTY PROMPT SELECT
-    user_input = gets.chomp
-    until user_input == "exit"
-      if user_input == "register"
-        register #add this method
+    user_input = prompt.select("How can we help?
+    Please enter one of the following options:", %w(register search update refund exit))
+       if user_input == "register"
+         register
       elsif user_input == "search"
-        search #add this method
+        search
       elsif user_input == "update"
         update #add this method
       elsif user_input == "refund"
         refund #add this method
       elsif user_input == "exit"
-  		  exit_app
+  		  anything_else
   		else
-  			"Invalid entry" #go back to options message??
+  			 "Invalid entry, please try again."
   		end
-	   end
-	  exit_app
-  end
+	  end
 
-  def register #form to fill in and collect each property?
-    #use tty prompt collect
-    User.create(first_name, second_name, email, address1, address2, city, post_code)
-    #return to options menu
+  def register
+    new_user = prompt.collect do
+      key(:first_name).ask('First name?', required: true)
+      key(:second_name).ask('Second name?', required: true)
+      key(:email).ask('Email?', required: true)
+
+      key(:address1).ask('First line address?', required: true)
+      key(:address2).ask('Second line address?')
+      key(:city).ask('City?', required: true)
+      key(:post_code).ask('Post Code?', required: true)
+    end
+
+    User.create(new_user)
+
+    menu
   end
 
   def search
-    puts "How would you like to search for a plant?" #add in tty prompt SELECT?
-    #would you like to search by price or environment?
+    user_input = prompt.select("How would you like to search for a plant?", %w(search_climate search_cost return_to_menu))
+    if user_input == "search_climate"
+      search_climate #add this method
+    elsif user_input == "search_cost"
+     search_cost #add this method
+   else user_input == "return_to_menu"
+     menu
+   end
   end
 
   def search_climate
-    puts "Thinking of adding some much needed foliage to your home but not sure what plants would thrive in it's microclimate? We can help you turn you living space into an Urban Jungle!"
-    puts "Please select one of the following climate options:
-    - humidity
-    - direct sunlight
-    - indirect light
-    - shade
-    - hot dry climate
-    - menu : return to main menu"
-    #eg find all plants which prefer a shady corner
-    #Puchase.all.select{|purchase| purchase.}
-    user_input = gets.chomp
-    Plant.all.select{|plant| plant.preferences == user_input}
-    binding.pry
+    user_input = prompt.select("Please select one of the following climate options which best represents a quality of your home environment:", %w(humidity direct_sunlight indirect_light shade hot_dry_climate return_to_menu))
+    if user_input != "return_to_menu"
+      plants_match = Plant.all.select{|plant| plant.preferences == self}
+    else user_input == "return_to_menu"
+     menu
+    end
+    plants_match
+  end
+    #binding.pry
+
+  def plant_price
+    Plant.all.map{|plant| plant.price }
   end
 
   def search_cost
-    puts "How much do you have to spend? We can provide plants to suit most budgets!"
-    puts "Please enter your maximum budget to see all plants within your price range:"
-    #eg find all plants which prefer a shady corner
-    #Puchase.all.select{|purchase| purchase.}
-    user_input = gets.chomp
-    Plant.all.select{|plant| plant.price < user_input}
+    puts "We can provide plants to suit most budgets! Please enter your maximum budget to see all plants within your price range:"
+    user_input = gets.chomp.to_i
+    plant_price.select{|price| price >= user_input}
     #then either purchase plant or return to options menu
   end
 
-  def purchase_plant
-    #purchase a plant
-    Purchase.create(#add arguments
-    )
-  end
+  # def purchase_plant
+  #   new_purchase = prompt.collect do
+  #     key(:date).ask('First name?', required: true) #date on initialization??
+  #     key(:user_id).ask('Second name?', required: true)
+  #     key(:plant_id).ask('Email?', required: true) validation to integer
+  #
+  #     key(:price).ask('First line address?', required: true)
+  #     key(:address2).ask('Second line address?')
+  #     key(:city).ask('City?', required: true)
+  #     key(:condition).ask('Post Code?', required: true)
+  #   end
+  #   Purchase.create(new_purchase)
+  #     puts "Your new plant is purchased!"
+  #
+  #   menu
+  # end
 
   def update
-    #update Cusomer details
+    #find a users details
+    #ask would you like to update your details y n
+    #check - should i locate a specific suer to update first?
+    update_user = prompt.collect do
+      key(:first_name).ask('First name?', required: true)
+      key(:second_name).ask('Second name?', required: true)
+      key(:email).ask('Email?', required: true)
+
+      key(:address1).ask('First line address?', required: true)
+      key(:address2).ask('Second line address?')
+      key(:city).ask('City?', required: true)
+      key(:post_code).ask('Post Code?', required: true)
+    end
+
+    User.update(update_user)
+
+    menu
+
   end
 
   def return
     #return a plant
+    #find all plants purchased by a user
+    #pick a plant to delete
+    return_purchase = Purchase.find_by(title: "That One Where the Guy Kicks Another Guy Once")
+    return_purchase.delete
+
+    menu
   end
 
   def anything_else
-    #can we help we ahything else? - yes return to options menu, no exit
+    user_input = prompt.select("Is there anything else we can help you with today?", %w(Yes No))
+    if user_input == "Yes"
+      menu
+   else user_input == "No"
+     exit_app
+   end
   end
 
 def exit_app
 	puts "Goodbye"
+end
+
 end
