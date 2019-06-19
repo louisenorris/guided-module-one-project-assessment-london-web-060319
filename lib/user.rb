@@ -3,7 +3,8 @@ class User < ActiveRecord::Base
   has_many :plants, through: :purchases
 
   # def all_purchases_for_a_user
-  #   self.Purchases{|purchase| purchase.user_id == self}
+  #   self.Purchase.all.select{|purchase| purchase.user_id == self}
+  #   binding.pry
   # end
 
 end
