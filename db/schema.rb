@@ -10,19 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_17_175406) do
+ActiveRecord::Schema.define(version: 2019_06_19_125751) do
 
   create_table "plants", force: :cascade do |t|
     t.text "species"
     t.text "preferences"
     t.integer "price"
+    t.text "condition"
   end
 
   create_table "purchases", force: :cascade do |t|
     t.datetime "date"
     t.integer "user_id"
     t.integer "plant_id"
-    t.text "condition"
   end
 
   create_table "users", force: :cascade do |t|
