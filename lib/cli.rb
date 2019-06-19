@@ -90,9 +90,9 @@ attr_accessor :current_user
       if user_input == "search climate"
         search_climate
       elsif user_input == "search cost"
-       search_cost
-     else user_input == "return to menu"
-       menu
+        search_cost
+      else user_input == "return to menu"
+        menu
      end
     end
 
@@ -136,7 +136,6 @@ attr_accessor :current_user
       sleep(3)
       puts "Your new plant is purchased!"
       sleep(3)
-      menu
     end
 
     def update
@@ -200,7 +199,7 @@ attr_accessor :current_user
       user_input = prompt.select("Is there anything else we can help you with today?", %w(Yes No))
       if user_input == "Yes"
         menu
-     else user_input == "No"
+      else user_input == "No"
        exit_app
      end
     end
