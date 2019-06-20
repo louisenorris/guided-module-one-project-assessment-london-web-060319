@@ -9,6 +9,7 @@ attr_accessor :current_user
     @font = TTY::Font.new(:doom)
     @pastel = Pastel.new
     @user_id = nil
+    @plant_id  = nil
   end
 
   def title
@@ -178,15 +179,28 @@ attr_accessor :current_user
     end
 
     def purchase(choosen_plant)
-      puts pastel.green("Transaction in process...")
-      basket = Plant.all.find_by(species: choosen_plant)
-      checkout = basket.id
-      Purchase.create(:date => Time.now.strftime("%F %T"), :user_id => @user_id, :plant_id => checkout)
-      puts "One moment please..."
-      sleep(3)
-      puts pastel.green("Your new plant is purchased!")
-      puts "One moment please..."
-      sleep(3)
+      user_details = User.find_by(id: @user_id)
+      user_balance = user_details.balance
+      plant_details = Plant.find_by(species: choosen_plant)
+
+    #  binding.pry
+      plant_price = plant_details.price
+    #  binding.pry
+        if user_details.balance < plant_details.price
+          puts "Looks like you do not have enough credit in your account to purchase this plant. Please return to the menu to credit your account."
+        else
+          puts pastel.green("Transaction in process...")
+          basket = Plant.all.find_by(species: choosen_plant)
+          checkout = basket.id
+          Purchase.create(:date => Time.now.strftime("%F %T"), :user_id => @user_id, :plant_id => checkout)
+          update_by = (user_details.balance - plant_details.price)
+          user_details.update(balance: update_by)
+          puts "One moment please..."
+          sleep(3)
+          puts pastel.green("Your new plant is purchased! Your new balance is £#{user_details.balance}")
+          puts "One moment please..."
+          sleep(3)
+        end
     end
 
     def update
