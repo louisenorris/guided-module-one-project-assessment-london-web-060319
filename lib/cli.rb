@@ -42,16 +42,14 @@ attr_accessor :current_user
   def log_in
     puts "Please enter your User ID:"
     @user_id = gets.chomp.to_i
-    print_user_details(@user_id)
-    sleep(3)
-    menu
+      if User.find_by(id: @user_id) == nil
+        puts "Looks like you are not a Urban Jungle registered user, please register your details."
+        register
+      else
+        print_user_details(@user_id)
+        menu
+      end
   end
-
-  # ADD LATER IF TIME - CHECKS IF USER ID EXISTS AND IF NOT SENDS TO register
-  #user check meth
-  #   validation - if !new_var
-  #     register
-  #   else
 
   def register
     puts "To register please enter your details as prompted."
