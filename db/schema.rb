@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_19_125751) do
+ActiveRecord::Schema.define(version: 2019_06_20_164705) do
 
   create_table "plants", force: :cascade do |t|
     t.text "species"
     t.text "preferences"
     t.integer "price"
     t.text "condition"
+    t.string "color"
   end
 
   create_table "purchases", force: :cascade do |t|
@@ -33,6 +34,7 @@ ActiveRecord::Schema.define(version: 2019_06_19_125751) do
     t.text "address2"
     t.text "city"
     t.text "post_code"
+    t.integer "balance", default: 0
   end
 
 end

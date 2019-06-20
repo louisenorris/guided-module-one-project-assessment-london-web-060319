@@ -25,6 +25,10 @@ attr_accessor :current_user
       end
   end
 
+  # def find_current_user(user_id)
+  #   user_details = User.find_by(id: user_id)
+  # end
+
   def print_user_details(user_id)
     user_details = User.find_by(id: user_id)
       puts pastel.green("Your details are as follows:")
@@ -36,6 +40,7 @@ attr_accessor :current_user
       puts "Address 2: #{user_details.address2}"
       puts "City: #{user_details.city}"
       puts "Post code: #{user_details.post_code}"
+      puts "Account balance: #{user_details.balance}"
   end
 
   def log_in
@@ -65,13 +70,16 @@ attr_accessor :current_user
     @user_id = user_saved_to_db.id
     puts pastel.green("New User registration complete, please note your ID number:")
     print_user_details(@user_id)
+    puts "One moment please..."
     sleep(3)
     menu
   end
 
   def menu
-    user_input = prompt.select("Please select one of the following options:", %w(search update delete_account exit))
-     if user_input == "search"
+    user_input = prompt.select("Please select one of the following options:", %w(account_balance search update delete_account exit))
+     if user_input == "account_balance"
+       update_balance
+     elsif user_input == "search"
        search
       elsif user_input == "update"
         update
@@ -82,12 +90,50 @@ attr_accessor :current_user
   		end
 	 end
 
+   # def find_user
+   #   user_details = User.find_by(id: @user_id)
+   # end
+   #
+   # def update_balance(user_balance)
+   #   puts pastel.green("Please state the amount you would like to update your balance by:")
+   #   user_input = gets.chomp.to_i
+   #   update_by = (user_balance + user_input)
+   #   user_details.update(balance: update_by)
+   #   puts "One moment please..."
+   #   sleep(3)
+   #   puts "Your current balance is now #{user_details.balance}."
+   # end
+
+
+   def update_balance
+     user_details = User.find_by(id: @user_id)
+     user_balance = user_details.balance
+     next_step = prompt.select("Your current balance is £#{user_details.balance}, would you like to update your balance?", %w(Yes No))
+      if next_step == "Yes"
+        puts pastel.green("Please state the amount you would like to update your balance by:")
+        user_input = gets.chomp.to_i
+        update_by = (user_balance + user_input)
+        user_details.update(balance: update_by)
+        puts "One moment please..."
+        sleep(3)
+        puts "Your current balance is now £#{user_details.balance}."
+        menu
+      else next_step == "No"
+        puts "Ok, let's return to the menu."
+        puts "One moment please..."
+        sleep(3)
+        menu
+       end
+   end
+
     def search
-      user_input = prompt.select("How would you like to search for a plant?", ["search climate", "search cost", "return to menu"])
+      user_input = prompt.select("How would you like to search for a plant?", ["search climate", "search cost", "search color", "return to menu"])
       if user_input == "search climate"
         search_climate
       elsif user_input == "search cost"
         search_cost
+      elsif user_input == "search color"
+        search_color
       else user_input == "return to menu"
         menu
      end
@@ -125,13 +171,21 @@ attr_accessor :current_user
       would_you_like_to_purchase(plant_species)
     end
 
+    def search_color
+      user_input = prompt.ask("Please enter your chose plant color:")
+      Plant.find_by_color(user_input)
+      menu
+    end
+
     def purchase(choosen_plant)
       puts pastel.green("Transaction in process...")
       basket = Plant.all.find_by(species: choosen_plant)
       checkout = basket.id
       Purchase.create(:date => Time.now.strftime("%F %T"), :user_id => @user_id, :plant_id => checkout)
+      puts "One moment please..."
       sleep(3)
       puts pastel.green("Your new plant is purchased!")
+      puts "One moment please..."
       sleep(3)
     end
 
@@ -142,9 +196,11 @@ attr_accessor :current_user
         user_input = gets.chomp.to_s
         update_email = User.find_by(id: @user_id)
         update_email.update(email: user_input)
+        puts "One moment please..."
         sleep(3)
         puts pastel.green("Your email address has been updated:")
         print_user_details(@user_id)
+        puts "One moment please..."
         sleep(3)
         menu
       else next_step == "No"
