@@ -3,7 +3,6 @@ class CommandLineInterface
 
 attr_reader :prompt, :font, :pastel
 attr_accessor :current_user
-#current user set to nil
 
   def initialize
     @prompt = TTY::Prompt.new
@@ -17,7 +16,7 @@ attr_accessor :current_user
   end
 
   def greet
-    puts 'Welcome to the Urban Jungle, the best source for indoor plants outside of your home!'
+    puts pastel.green("Welcome to the Urban Jungle, the best source for indoor plants outside of your home!")
     user_input = prompt.select("Are you a registered User?", %w(Yes No))
       if user_input == "Yes"
         log_in
@@ -28,7 +27,7 @@ attr_accessor :current_user
 
   def print_user_details(user_id)
     user_details = User.find_by(id: user_id)
-      puts "Your details are as follows:"
+      puts pastel.green("Your details are as follows:")
       puts "User ID: #{user_details.id}"
       puts "First name: #{user_details.first_name}"
       puts "Second name: #{user_details.second_name}"
@@ -40,10 +39,10 @@ attr_accessor :current_user
   end
 
   def log_in
-    puts "Please enter your User ID:"
+    puts pastel.green("Please enter your User ID:")
     @user_id = gets.chomp.to_i
       if User.find_by(id: @user_id) == nil
-        puts "Looks like you are not a Urban Jungle registered user, please register your details."
+        puts pastel.green("Looks like you are not a Urban Jungle registered user, please register your details.")
         register
       else
         print_user_details(@user_id)
@@ -52,7 +51,7 @@ attr_accessor :current_user
   end
 
   def register
-    puts "To register please enter your details as prompted."
+    puts pastel.green("To register please enter your details as prompted.")
       new_user = prompt.collect do
         key(:first_name).ask('First name?', required: true)
         key(:second_name).ask('Second name?', required: true)
@@ -64,7 +63,7 @@ attr_accessor :current_user
       end
     user_saved_to_db = User.create(new_user)
     @user_id = user_saved_to_db.id
-    puts "New User registration complete, please note your ID number:"
+    puts pastel.green("New User registration complete, please note your ID number:")
     print_user_details(@user_id)
     sleep(3)
     menu
@@ -118,7 +117,7 @@ attr_accessor :current_user
     end
 
     def search_cost
-      puts "We can provide plants to suit most budgets! Please enter your maximum budget to see all plants within your price range:"
+      puts pastel.green("We can provide plants to suit most budgets! Please enter your maximum budget to see all plants within your price range:")
       user_input = gets.chomp.to_i
       plants_in_budget = Plant.all.select{|plant| plant.price <= user_input}
       plant_species = plants_in_budget.map{|plant| plant.species }
@@ -127,24 +126,24 @@ attr_accessor :current_user
     end
 
     def purchase(choosen_plant)
-      puts "Transaction in process..."
+      puts pastel.green("Transaction in process...")
       basket = Plant.all.find_by(species: choosen_plant)
       checkout = basket.id
       Purchase.create(:date => Time.now.strftime("%F %T"), :user_id => @user_id, :plant_id => checkout)
       sleep(3)
-      puts "Your new plant is purchased!"
+      puts pastel.green("Your new plant is purchased!")
       sleep(3)
     end
 
     def update
       next_step = prompt.select("Would you like to update your email address?", %w(Yes No))
       if next_step == "Yes"
-        puts "Please enter your new email address:"
+        puts pastel.green("Please enter your new email address:")
         user_input = gets.chomp.to_s
         update_email = User.find_by(id: @user_id)
         update_email.update(email: user_input)
         sleep(3)
-        puts "Your email address has been updated:"
+        puts pastel.green("Your email address has been updated:")
         print_user_details(@user_id)
         sleep(3)
         menu
@@ -157,10 +156,10 @@ attr_accessor :current_user
       question_delete = prompt.select("Are you sure you want to delete your Urban Jungle account?", %w(Yes No))
         if question_delete == "Yes"
           User.destroy (@user_id)
-          puts "Your account has been deleted, thank you for your custom."
+          puts pastel.green("Your account has been deleted, thank you for your custom.")
           exit_app
         else question_delete == "No"
-          puts "No worries, lets take you back to the main menu."
+          puts pastel.green("No worries, lets take you back to the main menu.")
           menu
         end
     end
@@ -203,7 +202,7 @@ attr_accessor :current_user
     end
 
   def exit_app
-  	puts "Goodbye"
+  	puts pastel.green("Goodbye")
   end
 
 end
